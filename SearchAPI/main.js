@@ -11,6 +11,7 @@ let website = "";
 let s = "";
 let dataArr = [];
 let dict = {};
+let resultArr = [];
 
 
 //WebCrawler use only
@@ -37,29 +38,16 @@ app.post('/data', (req, res) => {
     website = data.key;
     s = data.s;
     max = parseInt(data.max);
-    set(website).then(function(x){
+    set(website).then(function (x) {
         let temp = []
         console.log(links)
-        for(const element of links){
-            let dat = {}
-            dat["url"] = element;
-            getTitle(element).then(function(x){
-                //let t = y;
-                //dat["title"] = t;
-                console.log(x)
-            });
-            scoreRemote(element, s).then(function(x){
-                let sc = x
-                dat["score"] = sc;
-                console.log(sc)
-            });
-            console.log(dat);
+        for (const element of links) {
+            createDict(element, s).then(function (x) {
+                console.log(x);
+            })
         }
-        // dict["results"] = max;
-        // dict["keyword"] = s;
-        // dict["data"] = 
-    });
-    
+        });
+
     dataArr.push(data);
 
     res.send('Data is added to the database');
@@ -168,10 +156,10 @@ async function parseWebsite(link){
     pastLinks.push(link)
 
     try{
-        let resp = await axios.get(link)
-        let $ = cheerio.load(resp.data)
+        let resp = await axios.get(link);
+        let $ = cheerio.load(resp.data);
         let a = $('a');
-        await disallow(robotLink)
+        await disallow(robotLink);
 
         for (const link of a) {
             if(loc < max){
@@ -184,9 +172,9 @@ async function parseWebsite(link){
                                 for (const element of disallows) {
                                     if (!row.includes(element)) {
                                         if (!links.includes(row)) {
-                                            console.log(row)
-                                            links.push(row)
-                                            loc++
+                                            console.log(row);
+                                            links.push(row);
+                                            loc++;
                                         }
                                     }
                                 }
@@ -215,13 +203,13 @@ async function getStatus(link){
         const req = await fetch(link);
         return req.status;
     } catch(error){
-        process.stdout.write("")
+        process.stdout.write("");
     }
 }
 
 async function disallow(rob){
     try {
-        let resp = await axios.get(rob)
+        let resp = await axios.get(rob);
         let $ = cheerio.load(resp.data);
         let bot = $.html()
 
@@ -229,17 +217,17 @@ async function disallow(rob){
         for (let i = 1; i < splitter.length; i++) {
             if (!splitter[i].includes('Allow: ')) {
                 if(i == splitter.length - 1){
-                    disallows.push(splitter[i].substring(0, splitter[i].indexOf('<')))  
+                    disallows.push(splitter[i].substring(0, splitter[i].indexOf('<')));
                 }
                 else{
-                    disallows.push(splitter[i])
+                    disallows.push(splitter[i]);
                 } 
             }
         }
     }
     catch (error) {
         //process.stdout.write("")
-        console.log(error)
+        console.log(error);
     }
 
 }
@@ -248,7 +236,7 @@ async function hm(){
     if(links.length > max){
         let len = links.length
         for(let i = 0; i < (len - max); i++){
-            links.splice(-1)
+            links.splice(-1);
         }
     }
     else if(links.length < max){
@@ -264,11 +252,20 @@ async function hm(){
 //extra methods
 async function getTitle(title){
     try{
-        let resp = await axios.get(title)
-        let $ = cheerio.load(resp.data)
+        let resp = await axios.get(title);
+        let $ = cheerio.load(resp.data);
         return $('title').text();
     }
     catch (error){
         process.stdout.write("");
     }
+}
+
+async function createDict(e, keyPhrase){
+    let dat = {}
+    dat["url"] = e;
+    dat["title"] = await getTitle(e);
+    dat["score"] = await scoreRemote(e, keyPhrase);
+    resultArr.push(dat);
+    return dat;
 }
