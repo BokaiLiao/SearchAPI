@@ -19,11 +19,13 @@ const loadBooks = () => {
             <div class="col-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">${data.key}</h5>
-                        <h6 class="card-subtitle">Score: ${data.s}</h6>
+                        <h5 class="card-title">${data.title}</h5>
+                        <h6 class="card-subtitle">Score: ${data.score}</h6>
 
-                        <div>Value Searched: ${data.s}</div>
+                        <div>Value Searched: ${data.value}</div>
                         <div>Limit: ${data.max}</div>
+                        <div>Date: ${data.date}</div>
+                        <div>URL: ${data.url}</div>
 
                         <hr>
 

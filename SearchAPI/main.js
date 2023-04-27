@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
-const cheerio = require('cheerio')
+const cheerio = require('cheerio');
 
 const app = express();
 const port = 3001;
@@ -43,19 +43,22 @@ app.post('/data', (req, res) => {
         console.log(links)
         for (const element of links) {
             createDict(element, s).then(function (x) {
-                console.log(x);
+                temp.push(x);
+                console.log(x)
+                if(temp.length == max){
+                    yo(temp)
+                }
+                dataArr.push(x);
             })
         }
         });
 
-    dataArr.push(data);
+    //dataArr.push(data);
 
     res.send('Data is added to the database');
 });
 
-app.get('/data', (req, res) => {
-    res.json(dataArr);
-});
+
 
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`));
 
@@ -164,11 +167,11 @@ async function parseWebsite(link){
         for (const link of a) {
             if(loc < max){
                 let row = link.attribs.href;
-                if (row.includes('https:')) {
+                if (row != null && row.includes('https:')) {
                     const stat = async function (a) {
                         status = await getStatus(row);
                         if (!isNaN(status)) {
-                            if ((status - 200) >= 0 && (status - 200) <= 99) {
+                            if ((status - 200) >= 0 && (status - 200) <= 99 && status != 403) {
                                 for (const element of disallows) {
                                     if (!row.includes(element)) {
                                         if (!links.includes(row)) {
@@ -201,6 +204,7 @@ async function parseWebsite(link){
 async function getStatus(link){
     try{
         const req = await fetch(link);
+        console.log(req.status)
         return req.status;
     } catch(error){
         process.stdout.write("");
@@ -226,8 +230,7 @@ async function disallow(rob){
         }
     }
     catch (error) {
-        //process.stdout.write("")
-        console.log(error);
+        process.stdout.write("");
     }
 
 }
@@ -240,7 +243,7 @@ async function hm(){
         }
     }
     else if(links.length < max){
-        while(pastLinks.includes(links[counter]) || links[counter].includes("premium") || links[counter].includes("infographic") || links[counter].includes("corporate")){
+        while(pastLinks.includes(links[counter]) || links[counter].includes("premium") || links[counter].includes("infographic") || links[counter].includes("corporate") || links[counter] == null){
             counter++;
         }
         link = links[counter];
@@ -262,10 +265,44 @@ async function getTitle(title){
 }
 
 async function createDict(e, keyPhrase){
+    const date = new Date()
+    let day = date.getDate();
+    if(day < 10){
+        day = day.toString().padStart(2, '0');
+    }
+    let month = date.getMonth() + 1;
+    if(month < 10){
+        month = month.toString().padStart(2, '0')
+    }
+    let year = date.getFullYear();
+    let hour = date.getHours();
+    if(hour < 10){
+        hour = hour.toString().padStart(2, '0');
+    }
+    let minute = date.getMinutes();
+    if(minute < 10){
+        minute = minute.toString().padStart(2, '0')
+    }
+    let second = date.getSeconds();
+    if(second < 10){
+        second = second.toString().padStart(2, '0')
+    }
+
+    let currentDate = `${year}-${month}-${day}  ${hour}:${minute}:${second}`;
+    
     let dat = {}
     dat["url"] = e;
     dat["title"] = await getTitle(e);
     dat["score"] = await scoreRemote(e, keyPhrase);
+    dat["value"] = s;
+    dat["max"] = max;
+    dat["date"] = currentDate
     resultArr.push(dat);
     return dat;
+}
+
+async function yo(x){
+    app.get('/data', (req, res) => {
+        res.json(dataArr);
+    });
 }
