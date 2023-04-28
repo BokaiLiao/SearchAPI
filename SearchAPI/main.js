@@ -171,7 +171,7 @@ async function parseWebsite(link){
                     const stat = async function (a) {
                         status = await getStatus(row);
                         if (!isNaN(status)) {
-                            if ((status - 200) >= 0 && (status - 200) <= 99 && status != 403) {
+                            if ((status - 200) >= 0 && (status - 200) <= 99) {
                                 for (const element of disallows) {
                                     if (!row.includes(element)) {
                                         if (!links.includes(row)) {
@@ -243,7 +243,7 @@ async function hm(){
         }
     }
     else if(links.length < max){
-        while(pastLinks.includes(links[counter]) || links[counter].includes("premium") || links[counter].includes("infographic") || links[counter].includes("corporate") || links[counter] == null){
+        while(pastLinks.includes(links[counter]) || links[counter].includes("premium") || links[counter].includes("infographic") || links[counter].includes("corporate") || links[counter] == null || links[counter].includes("busysub")){
             counter++;
         }
         link = links[counter];

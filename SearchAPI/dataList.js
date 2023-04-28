@@ -25,12 +25,10 @@ const loadBooks = () => {
                         <div>Value Searched: ${data.value}</div>
                         <div>Limit: ${data.max}</div>
                         <div>Date: ${data.date}</div>
-                        <div>URL: ${data.url}</div>
+                        <div>URL: <a href="${data.url}">${data.url}</a></div>
 
                         <hr>
 
-                        <button type="button" class="btn btn-danger">Delete</button>
-                        <button types="button" class="btn btn-primary">Edit</button>
                     </div>
                 </div>
             </div>
