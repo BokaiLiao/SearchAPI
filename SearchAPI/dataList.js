@@ -23,7 +23,6 @@ const loadBooks = () => {
                         <h6 class="card-subtitle">Score: ${data.score}</h6>
 
                         <div>Value Searched: ${data.value}</div>
-                        <div>Limit: ${data.max}</div>
                         <div>Date: ${data.date}</div>
                         <div>URL: <a href="${data.url}">${data.url}</a></div>
 

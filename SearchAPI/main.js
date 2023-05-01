@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
 const cheerio = require('cheerio');
+var fs = require('fs')
 
 const app = express();
 const port = 3001;
@@ -10,7 +11,6 @@ const port = 3001;
 let website = "";
 let s = "";
 let dataArr = [];
-let dict = {};
 let resultArr = [];
 
 
@@ -204,7 +204,6 @@ async function parseWebsite(link){
 async function getStatus(link){
     try{
         const req = await fetch(link);
-        console.log(req.status)
         return req.status;
     } catch(error){
         process.stdout.write("");
@@ -295,13 +294,19 @@ async function createDict(e, keyPhrase){
     dat["title"] = await getTitle(e);
     dat["score"] = await scoreRemote(e, keyPhrase);
     dat["value"] = s;
-    dat["max"] = max;
     dat["date"] = currentDate
     resultArr.push(dat);
     return dat;
 }
 
 async function yo(x){
+    let dict = {};
+    dict["maximum"] = max;
+    dict["keyword"] = s;
+    dict["results"] = x;
+    fs.writeFile('data.json', JSON.stringify(dict), function(err){
+        if(err) throw err;
+    });
     app.get('/data', (req, res) => {
         res.json(dataArr);
     });
